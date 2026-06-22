@@ -1,24 +1,54 @@
 console.log("test 1 check check if text to emoji working");
 
-document.addEventListener("input", function (event) {
-	let textBox = event.target;
+window.addEventListener(
+	"input",
+	function (event) {
+		let textBox = event.target;
 
-	let newText = textBox.value;
+		let richText = textBox.isContentEditable;
 
-	for (let shortcut in emojiDictionary) {
-		let emoji = emojiDictionary[shortcut];
-		newText = newText.replaceAll(shortcut, emoji);
-	}
+		let originalText = richText
+			? textBox.innerText
+			: textBox.value;
 
-	for (let shortcut in shortcutDictionary) {
-		let emoji = shortcutDictionary[shortcut];
-		newText = newText.replaceAll(shortcut, emoji);
-	}
+		if (!originalText) return;
+		let newText = originalText;
 
-	textBox.value = newText;
-	console.log("You typed:", textBox.value);
-	console.log("You typed2:", newText.value);
-});
+		//* replacing happens here.
+		for (let shortcut in emojiDictionary) {
+			let emoji = emojiDictionary[shortcut];
+			newText = newText.replaceAll(shortcut, emoji);
+		}
+		//* replacing happens here.
+		for (let shortcut in shortcutDictionary) {
+			let emoji = shortcutDictionary[shortcut];
+			newText = newText.replaceAll(shortcut, emoji);
+		}
+
+		if (originalText !== newText) {
+			if (richText) {
+				textBox.innerText = newText;
+
+				let range = document.createRange();
+				let sel = window.getSelection();
+				range.selectNodeContents(textBox);
+				range.collapse(false);
+				sel.removeAllRanges();
+				sel.addRange(range);
+				let event = new Event("input", { bubbles: true });
+				textBox.dispatchEvent(event);
+			} else {
+				let start = textBox.selectionStart;
+				let end = textBox.selectionEnd;
+
+				textBox.value = newText;
+
+				textBox.setSelectionRange(start, end);
+			}
+		}
+	},
+	true,
+);
 
 //! This one is for Emojis, if u wanna add new emojies add it on top of others, and remember to follow the format as the others. so u gotta do  => ":name:":"emoji",  for words shortcut scroll down.
 
