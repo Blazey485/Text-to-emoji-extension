@@ -7,3 +7,8 @@ so i added manifest.json where i have basic stuff then i added a content js to c
 "js": ["content.js"]
 }
 ]
+ok så nå checker jeg for inputs. og hver gang jeg skriver noe nytt på en nettside så logger jeg you wrote; ....
+![alt text](./screenshot_progress/image.png)
+
+ok så nå det funke jeg skrive :sob: det komme. bra bra
+![alt text](./screenshot_progress/sob_working.png)
