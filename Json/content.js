@@ -85,7 +85,7 @@ window.addEventListener(
 
 //! Emojis Dictionary
 const emojiDictionary = {
-	":1rofl:": "🤣",
+	":rofl:": "🤣",
 	":sob:": "😭",
 	":smile:": "😄",
 	":laughing:": "😆",
