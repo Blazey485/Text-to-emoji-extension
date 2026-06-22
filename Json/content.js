@@ -13,6 +13,7 @@ window.addEventListener(
 
 		let newText = originalText;
 
+		//* replacing happens here.
 		for (let shortcut in emojiDictionary) {
 			let emoji = emojiDictionary[shortcut];
 			let safeShortcut = shortcut.replace(
@@ -20,13 +21,16 @@ window.addEventListener(
 				"\\$&",
 			);
 
-			// Creates a "Whole Word Only" pattern
 			let regex = new RegExp(
-				"\\b" + safeShortcut + "\\b",
+				"\\b" + safeShortcut + "(\\s|$)",
 				"g",
 			);
-			newText = newText.replace(regex, emoji);
+			newText = newText.replace(
+				regex,
+				(match, p1) => emoji + p1,
+			);
 		}
+
 		for (let shortcut in shortcutDictionary) {
 			let emoji = shortcutDictionary[shortcut];
 			let safeShortcut = shortcut.replace(
@@ -34,12 +38,14 @@ window.addEventListener(
 				"\\$&",
 			);
 
-			// Creates a "Whole Word Only" pattern
 			let regex = new RegExp(
-				"\\b" + safeShortcut + "\\b",
+				"\\b" + safeShortcut + "(\\s|$)",
 				"g",
 			);
-			newText = newText.replace(regex, emoji);
+			newText = newText.replace(
+				regex,
+				(match, p1) => emoji + p1,
+			);
 		}
 
 		if (originalText !== newText) {
@@ -83,55 +89,65 @@ window.addEventListener(
 	true,
 );
 
+//! This one is for Emojis, if u wanna add new emojies add it on top of others, and remember to follow the format as the others. so u gotta do  => ":name:":"emoji",  for words shortcut scroll down.
 //! Emojis Dictionary
 const emojiDictionary = {
 	":rofl:": "🤣",
+	":joy:": "😂",
 	":sob:": "😭",
+	":cry:": "😢",
 	":smile:": "😄",
+	":grin:": "😁",
 	":laughing:": "😆",
-	":clown:": "🤡",
+	":sweat_smile:": "😅",
+	":clown_face:": "🤡",
 	":wink:": "😉",
 	":heart_eyes:": "😍",
-	":star_eyes:": "🤩",
+	":star_struck:": "🤩",
 	":smirk:": "😏",
 	":pensive:": "😔",
+	":confused:": "😕",
 	":grimacing:": "😬",
+	":neutral_face:": "😐",
 	":expressionless:": "😑",
-	":bored:": "🥱",
+	":yawning_face:": "🥱",
 	":sleeping:": "😴",
-	":drool:": "🤤",
+	":drooling_face:": "🤤",
 	":thinking:": "🤔",
 	":shrug:": "🤷",
-	":facepalm:": "🤦",
-	":zipped_mouth:": "🤐",
-	":lying:": "🤥",
-	":nerd:": "🤓",
+	":face_palm:": "🤦",
+	":zipper_mouth_face:": "🤐",
+	":lying_face:": "🤥",
+	":nerd_face:": "🤓",
 	":sunglasses:": "😎",
-	":cowboy:": "🤠",
-	":partying:": "🥳",
-	":scared:": "😱",
+	":cowboy_hat_face:": "🤠",
+	":partying_face:": "🥳",
+	":scream:": "😱",
 	":rage:": "😡",
-	":cursing:": "🤬",
-	":sick:": "🤢",
-	":vomit:": "🤮",
-	":exploding:": "🤯",
-	":blushing:": "😊",
-	":pleading:": "🥺",
+	":face_with_symbols_over_mouth:": "🤬",
+	":nauseated_face:": "🤢",
+	":face_vomiting:": "🤮",
+	":exploding_head:": "🤯",
+	":blush:": "😊",
+	":pleading_face:": "🥺",
+
 	":thumbsup:": "👍",
 	":thumbsdown:": "👎",
 	":fist:": "👊",
-	":v_sign:": "✌️",
+	":v:": "✌️",
 	":wave:": "👋",
 	":pray:": "🙏",
 	":clap:": "👏",
 	":muscle:": "💪",
 	":eyes:": "👀",
+
 	":heart:": "❤️",
 	":broken_heart:": "💔",
 	":black_heart:": "🖤",
 	":sparkles:": "✨",
-	":100:": "💯",
-	":collision:": "💥",
+	":hundred:": "💯",
+	":boom:": "💥",
+
 	":cat:": "🐱",
 	":dog:": "🐶",
 	":goat:": "🐐",
@@ -139,21 +155,25 @@ const emojiDictionary = {
 	":ghost:": "👻",
 	":robot:": "🤖",
 	":poop:": "💩",
-	":sun:": "☀️",
-	":moon:": "🌙",
+
+	":sunny:": "☀️",
+	":crescent_moon:": "🌙",
 	":cloud_rain:": "🌧️",
-	":ice:": "🧊",
-	":party_popper:": "🎉",
+	":ice_cube:": "🧊",
+
+	":tada:": "🎉",
 	":trophy:": "🏆",
 	":gift:": "🎁",
-	":money:": "💸",
-	":hourglass:": "⏳",
+	":money_with_wings:": "💸",
+	":hourglass_flowing_sand:": "⏳",
+
 	":warning:": "⚠️",
-	":forbidden:": "🚫",
-	":check:": "✅",
-	":cross:": "❌",
+	":no_entry:": "🚫",
+	":white_check_mark:": "✅",
+	":x:": "❌",
 };
 
+//! so here its pretty simple. u write the short cut then a single following it. and remember comma at the end so the loop doesnt stop at the start.
 //! Shortcuts Dictionary
 const shortcutDictionary = {
 	tbh: "to be honest",
@@ -163,7 +183,7 @@ const shortcutDictionary = {
 	brb: "be right back",
 	smh: "shaking my head",
 	lol: "laughing out loud",
-	lmao: "laughing myao",
+	lmao: "laughing my ass off",
 	rofl: "rolling on the floor laughing",
 	btw: "by the way",
 	fyi: "for your information",
@@ -176,19 +196,67 @@ const shortcutDictionary = {
 	thx: "thanks",
 	pls: "please",
 	srsly: "seriously",
-	wdym: "what do you mean? 🤔",
-	ofc: "of course! ✅",
-	omg: "oh my god! 😱",
-	gtg: "got to go! 🏃",
-	cya: "see ya! 👋",
-	nvm: "nevermind 🤷",
-	ikr: "I know, right? 🤝",
-	rn: "right now ⏰",
-	gg: "good game 🎮",
-	gl: "good luck 🍀",
-	hf: "have fun 🎉",
-	hbu: "how about you? ❓",
-	wfh: "work from home 🏡",
-	ootd: "outfit of the day 👗",
-	tbt: "throwback Thursday 📅",
+	wdym: "what do you mean",
+	ofc: "of course",
+	omg: "oh my god",
+	gtg: "got to go",
+	cya: "see you",
+	nvm: "nevermind",
+	ikr: "I know right",
+	rn: "right now",
+	gg: "good game",
+	gl: "good luck",
+	hf: "have fun",
+	hbu: "how about you",
+	wfh: "work from home",
+	ootd: "outfit of the day",
+	tbt: "throwback Thursday",
+
+	gonna: " going to",
+
+	imma: " I am going to",
+	fr: "for real",
+	frfr: "for real for real",
+	nocap: "no lie",
+	cap: "lie",
+	bet: "okay",
+	sus: "suspicious",
+	bussin: "really good",
+	fin: "about to",
+	lowkey: "kind of",
+	highkey: "very",
+	vibe: "feeling",
+	vibing: "relaxing",
+	slay: "doing great",
+	ate: "did well",
+	atethat: "you nailed it",
+	rizz: "charisma",
+	mid: "average",
+	fire: "really good",
+	drip: "style",
+	ghost: "stop replying",
+	simp: "overly obsessed",
+	iykyk: "if you know you know",
+	fomo: "fear of missing out",
+	jomo: "joy of missing out",
+	tmi: "too much information",
+	afk: "away from keyboard",
+	dm: "direct message",
+	pm: "private message",
+	nsfw: "not safe for work",
+	ttyl: "talk to you later",
+	bff: "best friends forever",
+	goat: "greatest of all time",
+	ong: "on God",
+	k: "okay",
+	bc: "because",
+	cu: "see you",
+	lmk: "let me know",
+	afaik: "as far as I know",
+	omw: "on my way",
+	idc: "I don't care",
+	tfw: "that feeling when",
+	mood: "relatable",
+	bffr: "be for real",
+	delulu: "delusional",
 };
