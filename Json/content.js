@@ -19,6 +19,10 @@ document.addEventListener("keydown", (event) => {
 				: element.innerText;
 			let newText = currentText;
 
+			let originalSelectionStart = isInput
+				? element.selectionStart
+				: null;
+
 			for (let shortcut in emojiDictionary) {
 				let emoji = emojiDictionary[shortcut];
 				let safeShortcut = shortcut.replace(
@@ -38,7 +42,6 @@ document.addEventListener("keydown", (event) => {
 					/[-\/\\^$*+?.()|[\]{}]/g,
 					"\\$&",
 				);
-
 				let regex = new RegExp(
 					"(?<![a-zA-Z])" + safeShortcut + "(?![a-zA-Z])",
 					"gi",
@@ -49,6 +52,16 @@ document.addEventListener("keydown", (event) => {
 			if (currentText !== newText) {
 				if (isInput) {
 					element.value = newText;
+
+					let lengthDifference =
+						newText.length - currentText.length;
+					let newSelectionPosition =
+						originalSelectionStart + lengthDifference;
+
+					element.setSelectionRange(
+						newSelectionPosition,
+						newSelectionPosition,
+					);
 				} else {
 					element.innerText = newText;
 				}
