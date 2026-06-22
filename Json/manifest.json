@@ -1,0 +1,12 @@
+{
+	"manifest_version": 3,
+	"name": "Text to Emoji",
+	"version": 1,
+	"description": "so if you type :sob: it becomes into the crying emoji",
+	"content_scripts": [
+		{
+			"matches": ["<all_urls>"],
+			"js": ["content.js"]
+		}
+	]
+}
