@@ -1,7 +1,7 @@
 {
 	"manifest_version": 3,
 	"name": "TypeMagic",
-	"version": "1.0",
+	"version": "2.0",
 	"description": "Automatically converts text shortcuts like :sob: to emojis and text abbreviations like brb to full phrases in real-time.  so like :sob: becomes into 😭 and brb becomes be right back. i made this mainly cus how much we use these short-formed grammar",
 	"content_scripts": [
 		{
