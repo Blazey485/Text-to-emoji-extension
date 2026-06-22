@@ -1,93 +1,65 @@
 console.log("test 1 check check if text to emoji working");
 
-window.addEventListener(
-	"input",
-	function (event) {
-		let textBox = event.target;
-		let richText = textBox.isContentEditable;
+document.addEventListener("keydown", (event) => {
+	if (event.key !== " " && event.key !== "Enter") {
+		return;
+	}
 
-		let originalText = richText
-			? textBox.innerText
-			: textBox.value;
-		if (!originalText) return;
+	const element = event.target;
 
-		let newText = originalText;
+	if (
+		element.tagName === "INPUT" ||
+		element.tagName === "TEXTAREA" ||
+		element.isContentEditable
+	) {
+		setTimeout(() => {
+			let isInput = element.value !== undefined;
+			let currentText = isInput
+				? element.value
+				: element.innerText;
+			let newText = currentText;
 
-		//* replacing happens here.
-		for (let shortcut in emojiDictionary) {
-			let emoji = emojiDictionary[shortcut];
-			let safeShortcut = shortcut.replace(
-				/[-\/\\^$*+?.()|[\]{}]/g,
-				"\\$&",
-			);
+			for (let shortcut in emojiDictionary) {
+				let emoji = emojiDictionary[shortcut];
+				let safeShortcut = shortcut.replace(
+					/[-\/\\^$*+?.()|[\]{}]/g,
+					"\\$&",
+				);
+				let regex = new RegExp(
+					"(?<![a-zA-Z])" + safeShortcut + "(?![a-zA-Z])",
+					"gi",
+				);
+				newText = newText.replace(regex, emoji);
+			}
 
-			let regex = new RegExp(
-				"\\b" + safeShortcut + "(\\s|$)",
-				"g",
-			);
-			newText = newText.replace(
-				regex,
-				(match, p1) => emoji + p1,
-			);
-		}
+			for (let shortcut in shortcutDictionary) {
+				let fullForm = shortcutDictionary[shortcut];
+				let safeShortcut = shortcut.replace(
+					/[-\/\\^$*+?.()|[\]{}]/g,
+					"\\$&",
+				);
 
-		for (let shortcut in shortcutDictionary) {
-			let emoji = shortcutDictionary[shortcut];
-			let safeShortcut = shortcut.replace(
-				/[-\/\\^$*+?.()|[\]{}]/g,
-				"\\$&",
-			);
+				let regex = new RegExp(
+					"(?<![a-zA-Z])" + safeShortcut + "(?![a-zA-Z])",
+					"gi",
+				);
+				newText = newText.replace(regex, fullForm);
+			}
 
-			let regex = new RegExp(
-				"\\b" + safeShortcut + "(\\s|$)",
-				"g",
-			);
-			newText = newText.replace(
-				regex,
-				(match, p1) => emoji + p1,
-			);
-		}
-
-		if (originalText !== newText) {
-			if (richText) {
-				try {
-					textBox.focus();
-
-					const range = document.createRange();
-					range.selectNodeContents(textBox);
-
-					const selection = window.getSelection();
-					selection.removeAllRanges();
-					selection.addRange(range);
-
-					document.execCommand(
-						"insertText",
-						false,
-						newText,
-					);
-				} catch (e) {
-					console.error(
-						"Rich text replacement failed: ",
-						e,
-					);
+			if (currentText !== newText) {
+				if (isInput) {
+					element.value = newText;
+				} else {
+					element.innerText = newText;
 				}
-			} else {
-				let start = textBox.selectionStart;
-				let end = textBox.selectionEnd;
 
-				let lengthDifference =
-					newText.length - originalText.length;
-
-				textBox.value = newText;
-				textBox.setSelectionRange(
-					start + lengthDifference,
-					end + lengthDifference,
+				element.dispatchEvent(
+					new Event("input", { bubbles: true }),
 				);
 			}
-		}
-	},
-	true,
-);
+		}, 0);
+	}
+});
 
 //! This one is for Emojis, if u wanna add new emojies add it on top of others, and remember to follow the format as the others. so u gotta do  => ":name:":"emoji",  for words shortcut scroll down.
 //! Emojis Dictionary
