@@ -9,62 +9,164 @@ document.addEventListener("keydown", (event) => {
 
 	if (
 		element.tagName === "INPUT" ||
-		element.tagName === "TEXTAREA" ||
-		element.isContentEditable
+		element.tagName === "TEXTAREA"
 	) {
 		setTimeout(() => {
-			let isInput = element.value !== undefined;
-			let currentText = isInput
-				? element.value
-				: element.innerText;
-			let newText = currentText;
+			let currentText = element.value;
+			let cursorPosition = element.selectionStart;
 
-			let originalSelectionStart = isInput
-				? element.selectionStart
-				: null;
+			let textBeforeCursor = currentText.substring(
+				0,
+				cursorPosition,
+			);
+			let textAfterCursor =
+				currentText.substring(cursorPosition);
+
+			let words = textBeforeCursor.split(/(\s+)/);
+			if (words.length === 0) return;
+
+			let lastWordIndex = words.length - 1;
+			let lastWord = words[lastWordIndex];
+
+			let cleanWord = lastWord.trim();
+			if (!cleanWord) {
+				if (words.length >= 3) {
+					lastWordIndex = words.length - 3;
+					cleanWord = words[lastWordIndex].trim();
+					lastWord = words[lastWordIndex];
+				} else {
+					return;
+				}
+			}
+
+			let replacedWord = cleanWord;
+			let matched = false;
 
 			for (let shortcut in emojiDictionary) {
-				let emoji = emojiDictionary[shortcut];
-				let safeShortcut = shortcut.replace(
-					/[-\/\\^$*+?.()|[\]{}]/g,
-					"\\$&",
-				);
-				let regex = new RegExp(
-					"(?<![a-zA-Z])" + safeShortcut + "(?![a-zA-Z])",
-					"gi",
-				);
-				newText = newText.replace(regex, emoji);
-			}
-
-			for (let shortcut in shortcutDictionary) {
-				let fullForm = shortcutDictionary[shortcut];
-				let safeShortcut = shortcut.replace(
-					/[-\/\\^$*+?.()|[\]{}]/g,
-					"\\$&",
-				);
-				let regex = new RegExp(
-					"(?<![a-zA-Z])" + safeShortcut + "(?![a-zA-Z])",
-					"gi",
-				);
-				newText = newText.replace(regex, fullForm);
-			}
-
-			if (currentText !== newText) {
-				if (isInput) {
-					element.value = newText;
-
-					let lengthDifference =
-						newText.length - currentText.length;
-					let newSelectionPosition =
-						originalSelectionStart + lengthDifference;
-
-					element.setSelectionRange(
-						newSelectionPosition,
-						newSelectionPosition,
-					);
-				} else {
-					element.innerText = newText;
+				if (
+					cleanWord.toLowerCase() === shortcut.toLowerCase()
+				) {
+					replacedWord = emojiDictionary[shortcut];
+					matched = true;
+					break;
 				}
+			}
+
+			if (!matched) {
+				for (let shortcut in shortcutDictionary) {
+					if (
+						cleanWord.toLowerCase() ===
+						shortcut.toLowerCase()
+					) {
+						replacedWord = shortcutDictionary[shortcut];
+						matched = true;
+						break;
+					}
+				}
+			}
+
+			if (matched) {
+				words[lastWordIndex] = lastWord.replace(
+					new RegExp(safeRegexEscape(cleanWord), "i"),
+					replacedWord,
+				);
+				let newTextBeforeCursor = words.join("");
+
+				element.value =
+					newTextBeforeCursor + textAfterCursor;
+
+				let newCursorPosition = newTextBeforeCursor.length;
+				element.setSelectionRange(
+					newCursorPosition,
+					newCursorPosition,
+				);
+
+				element.dispatchEvent(
+					new Event("input", { bubbles: true }),
+				);
+			}
+		}, 0);
+	} else if (element.isContentEditable) {
+		setTimeout(() => {
+			let selection = window.getSelection();
+			if (!selection.rangeCount) return;
+
+			let range = selection.getRangeAt(0);
+			let textNode = range.startContainer;
+
+			if (textNode.nodeType !== Node.TEXT_NODE) return;
+
+			let currentText = textNode.nodeValue;
+			let cursorPosition = range.startOffset;
+
+			let textBeforeCursor = currentText.substring(
+				0,
+				cursorPosition,
+			);
+			let textAfterCursor =
+				currentText.substring(cursorPosition);
+
+			let words = textBeforeCursor.split(/(\s+)/);
+			if (words.length === 0) return;
+
+			let lastWordIndex = words.length - 1;
+			let lastWord = words[lastWordIndex];
+
+			let cleanWord = lastWord.trim();
+			if (!cleanWord) {
+				if (words.length >= 3) {
+					lastWordIndex = words.length - 3;
+					cleanWord = words[lastWordIndex].trim();
+					lastWord = words[lastWordIndex];
+				} else {
+					return;
+				}
+			}
+
+			let replacedWord = cleanWord;
+			let matched = false;
+
+			for (let shortcut in emojiDictionary) {
+				if (
+					cleanWord.toLowerCase() === shortcut.toLowerCase()
+				) {
+					replacedWord = emojiDictionary[shortcut];
+					matched = true;
+					break;
+				}
+			}
+
+			if (!matched) {
+				for (let shortcut in shortcutDictionary) {
+					if (
+						cleanWord.toLowerCase() ===
+						shortcut.toLowerCase()
+					) {
+						replacedWord = shortcutDictionary[shortcut];
+						matched = true;
+						break;
+					}
+				}
+			}
+
+			if (matched) {
+				words[lastWordIndex] = lastWord.replace(
+					new RegExp(safeRegexEscape(cleanWord), "i"),
+					replacedWord,
+				);
+				let newTextBeforeCursor = words.join("");
+
+				textNode.nodeValue =
+					newTextBeforeCursor + textAfterCursor;
+
+				let newRange = document.createRange();
+				newRange.setStart(
+					textNode,
+					newTextBeforeCursor.length,
+				);
+				newRange.collapse(true);
+				selection.removeAllRanges();
+				selection.addRange(newRange);
 
 				element.dispatchEvent(
 					new Event("input", { bubbles: true }),
@@ -73,6 +175,10 @@ document.addEventListener("keydown", (event) => {
 		}, 0);
 	}
 });
+
+function safeRegexEscape(str) {
+	return str.replace(/[-\/\\^$*+?.()|[\]{}]/g, "\\$&");
+}
 
 //! This one is for Emojis, if u wanna add new emojies add it on top of others, and remember to follow the format as the others. so u gotta do  => ":name:":"emoji",  for words shortcut scroll down.
 //! Emojis Dictionary
