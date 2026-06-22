@@ -1,0 +1,1 @@
+so if u wanna download this extension on ur firefox jus download the Json file and run it. im tryna upload to the public,  I am going to keep yall updated. another thing is that if yall want new short abbriviations and emojies just file a issue or feel free to direct message me on discord "blaz3y__"  https://discordapp.com/users/769481868256346112 
