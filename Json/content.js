@@ -4,56 +4,88 @@ window.addEventListener(
 	"input",
 	function (event) {
 		let textBox = event.target;
-
 		let richText = textBox.isContentEditable;
 
 		let originalText = richText
 			? textBox.innerText
 			: textBox.value;
-
 		if (!originalText) return;
+
 		let newText = originalText;
 
-		//* replacing happens here.
 		for (let shortcut in emojiDictionary) {
 			let emoji = emojiDictionary[shortcut];
-			newText = newText.replaceAll(shortcut, emoji);
+			let safeShortcut = shortcut.replace(
+				/[-\/\\^$*+?.()|[\]{}]/g,
+				"\\$&",
+			);
+
+			// Creates a "Whole Word Only" pattern
+			let regex = new RegExp(
+				"\\b" + safeShortcut + "\\b",
+				"g",
+			);
+			newText = newText.replace(regex, emoji);
 		}
-		//* replacing happens here.
 		for (let shortcut in shortcutDictionary) {
 			let emoji = shortcutDictionary[shortcut];
-			newText = newText.replaceAll(shortcut, emoji);
+			let safeShortcut = shortcut.replace(
+				/[-\/\\^$*+?.()|[\]{}]/g,
+				"\\$&",
+			);
+
+			// Creates a "Whole Word Only" pattern
+			let regex = new RegExp(
+				"\\b" + safeShortcut + "\\b",
+				"g",
+			);
+			newText = newText.replace(regex, emoji);
 		}
 
 		if (originalText !== newText) {
 			if (richText) {
-				textBox.innerText = newText;
+				try {
+					textBox.focus();
 
-				let range = document.createRange();
-				let sel = window.getSelection();
-				range.selectNodeContents(textBox);
-				range.collapse(false);
-				sel.removeAllRanges();
-				sel.addRange(range);
-				let event = new Event("input", { bubbles: true });
-				textBox.dispatchEvent(event);
+					const range = document.createRange();
+					range.selectNodeContents(textBox);
+
+					const selection = window.getSelection();
+					selection.removeAllRanges();
+					selection.addRange(range);
+
+					document.execCommand(
+						"insertText",
+						false,
+						newText,
+					);
+				} catch (e) {
+					console.error(
+						"Rich text replacement failed: ",
+						e,
+					);
+				}
 			} else {
 				let start = textBox.selectionStart;
 				let end = textBox.selectionEnd;
 
-				textBox.value = newText;
+				let lengthDifference =
+					newText.length - originalText.length;
 
-				textBox.setSelectionRange(start, end);
+				textBox.value = newText;
+				textBox.setSelectionRange(
+					start + lengthDifference,
+					end + lengthDifference,
+				);
 			}
 		}
 	},
 	true,
 );
 
-//! This one is for Emojis, if u wanna add new emojies add it on top of others, and remember to follow the format as the others. so u gotta do  => ":name:":"emoji",  for words shortcut scroll down.
-
+//! Emojis Dictionary
 const emojiDictionary = {
-	":rofl:": "🤣",
+	":1rofl:": "🤣",
 	":sob:": "😭",
 	":smile:": "😄",
 	":laughing:": "😆",
@@ -122,7 +154,7 @@ const emojiDictionary = {
 	":cross:": "❌",
 };
 
-//! so here its pretty simple. u write the short cut then a single following it. and remember comma at the end so the loop doesnt stop at the start.
+//! Shortcuts Dictionary
 const shortcutDictionary = {
 	tbh: "to be honest",
 	idk: "I don't know",
