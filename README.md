@@ -3,3 +3,7 @@ so if u wanna download this extension on ur firefox jus download the Json file a
 
 
 And if yall have like Logo ideas just send them to me on discord or file an issue yk, much appreciated 
+
+
+**OFFICIAL DOWNLOAD LINK https://addons.mozilla.org/en-US/firefox/addon/typemagic/ **
+
